@@ -1,0 +1,1 @@
+MONGO_URL = mongodb+srv://himanshukumawat2004j_db_user:M9D06MI6cvTd40g5@cluster1.tqynjfs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1

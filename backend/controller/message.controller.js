@@ -1,0 +1,56 @@
+import Conversation from "../models/conversation.models.js"
+import Message from "../models/message.models.js"
+
+export const sendMessage = async(req,res)=>{
+    try{
+        const {message} = req.body
+        const {id:receiverId} = req.params
+        const senderId = req.user._id
+
+        let conversation  = await Conversation.findOne({
+            participants:{$all : [senderId,receiverId]}
+        })
+        if(!conversation){
+            conversation = await Conversation.create({
+                participants:[senderId,receiverId]
+            })
+        }
+        const newMessage = new Message({
+            senderId,
+            receiverId,
+            message
+        })
+        conversation.messages.push(newMessage._id)
+
+        // Saved Conversation and messages.
+        await Promise.all([conversation.save(),newMessage.save()]);
+
+
+        return res.status(201).json({newMessage})
+    }
+    catch(error){
+        console.log("Error in message Controller")
+        res.status(500).json({error:"Internal Server error"})
+    }
+}
+
+
+export const getMessage = async(req,res)=>{
+    try{
+        const {id:userToChatId} = req.params
+        const senderId = req.user._id
+
+        const conversation = await Conversation.findOne({
+            participants:{$all:[senderId,userToChatId]}
+        }).populate("messages")     // Each Message One by One.
+
+        if(!conversation){
+            return res.status(200).json([])
+        }
+        return res.status(200).json({message:conversation.messages})
+    }
+    catch(error){
+        console.log(`Error in message Controller(get) - ${error.message}`)
+        res.status(500).json({error:"Internal Server error"})
+    }
+}
