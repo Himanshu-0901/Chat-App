@@ -4,6 +4,8 @@ import { generateTokenAndCookie } from "../utils/generateToken.js";
 
 export const signup = async (req, res) => {
   try {
+    
+    console.log(req.body.userName)
     const { fullName, userName, gender, password, confirmPassword } = req.body;
 
     if (password != confirmPassword) {
@@ -31,7 +33,7 @@ export const signup = async (req, res) => {
       userName,
       gender,
       password: hashPassword,
-      profilePic: gender == "Male" ? BoyProfile : GirlProfile,
+      profilePic: gender == "male" ? BoyProfile : GirlProfile,
     });
 
     if (newUser) {
@@ -56,7 +58,7 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   try {
     let { userName, password } = req.body;
-
+    console.log(userName,password)
     const findUser = await user.findOne({ userName });
     const isPassword = await bcrypt.compare(password, findUser?.password || "");
 
@@ -66,7 +68,7 @@ export const login = async (req, res) => {
         id: findUser.id,
         userName: findUser.userName,
         fullName: findUser.fullName,
-        profielPic: findUser.profilePic,
+        profilePic: findUser.profilePic,
       });
     } else {
       return res.status(400).json({ error: "Invalid userName or Password" });
